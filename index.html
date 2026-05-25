@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>つまりなんで？| 初速制作室</title>
+  <meta name="description" content="「最近なんかうまく回らない」——その原因、AIが答えます。つまりなんで？は生活の詰まりの正体を見つけて、今日の小さな一歩を教えてくれるツールです。">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&family=Noto+Serif+JP:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --cream:     #faf6f0;
+      --parchment: #f0e8d8;
+      --warm-tan:  #d4b896;
+      --terracotta:#c47a5a;
+      --brick:     #a85c3e;
+      --deep:      #3d2b1f;
+      --mid:       #7a5c48;
+      --sage:      #8a9e7e;
+      --sage-light:#c8d9c0;
+      --sky:       #8fb5c8;
+      --radius:    16px;
+      --shadow:    0 4px 24px rgba(61,43,31,0.10);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Zen Maru Gothic', sans-serif;
+      background: var(--cream);
+      color: var(--deep);
+      min-height: 100vh;
+      padding: 0 0 80px;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--parchment);
+      border-bottom: 2px solid var(--warm-tan);
+      padding: 32px 24px 28px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 200px; height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle, var(--warm-tan) 0%, transparent 70%);
+      opacity: 0.3;
+    }
+    .header-label {
+      display: inline-block;
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      color: var(--terracotta);
+      background: rgba(196,122,90,0.12);
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+    }
+    header h1 {
+      font-family: 'Noto Serif JP', serif;
+      font-size: clamp(22px, 5vw, 30px);
+      font-weight: 600;
+      color: var(--deep);
+      line-height: 1.4;
+    }
+    header h1 span {
+      color: var(--terracotta);
+    }
+    header p {
+      margin-top: 10px;
+      font-size: 13px;
+      color: var(--mid);
+      line-height: 1.8;
+    }
+
+    /* ── Main ── */
+    main {
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 32px 20px 0;
+    }
+
+    /* ── Section title ── */
+    .section-title {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--deep);
+      margin-bottom: 20px;
+      padding-left: 12px;
+      border-left: 3px solid var(--terracotta);
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px 20px;
+      margin-bottom: 16px;
+    }
+
+    /* ── Slider items ── */
+    .item {
+      margin-bottom: 22px;
+    }
+    .item:last-child { margin-bottom: 0; }
+
+    .item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .item-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--deep);
+    }
+    .item-icon {
+      font-size: 18px;
+      width: 28px;
+      text-align: center;
+    }
+    .item-value {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--terracotta);
+      min-width: 60px;
+      text-align: right;
+    }
+
+    /* Slider */
+    .slider-wrap {
+      position: relative;
+      padding: 4px 0;
+    }
+    input[type=range] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--parchment);
+      outline: none;
+      cursor: pointer;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--terracotta);
+      box-shadow: 0 2px 8px rgba(196,122,90,0.4);
+      cursor: pointer;
+      transition: transform 0.15s, background 0.15s;
+    }
+    input[type=range]::-webkit-slider-thumb:hover {
+      transform: scale(1.15);
+      background: var(--brick);
+    }
+    .slider-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 6px;
+    }
+    .slider-labels span {
+      font-size: 10px;
+      color: var(--warm-tan);
+    }
+
+    /* ── Button ── */
+    .btn-diagnose {
+      display: block;
+      width: 100%;
+      padding: 18px;
+      background: var(--terracotta);
+      color: #fff;
+      font-family: 'Zen Maru Gothic', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      border: none;
+      border-radius: var(--radius);
+      cursor: pointer;
+      letter-spacing: 0.05em;
+      box-shadow: 0 4px 16px rgba(196,122,90,0.35);
+      transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+      margin-top: 8px;
+    }
+    .btn-diagnose:hover:not(:disabled) {
+      background: var(--brick);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(168,92,62,0.35);
+    }
+    .btn-diagnose:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* ── Loading ── */
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 40px 20px;
+    }
+    .loading.show { display: block; }
+    .loading-dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: var(--terracotta);
+      animation: bounce 1.2s ease-in-out infinite;
+    }
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce {
+      0%,60%,100% { transform: translateY(0); opacity:0.5; }
+      30% { transform: translateY(-10px); opacity:1; }
+    }
+    .loading p { font-size: 13px; color: var(--mid); }
+
+    /* ── Result ── */
+    #result {
+      display: none;
+      animation: fadeUp 0.5s ease;
+    }
+    #result.show { display: block; }
+    @keyframes fadeUp {
+      from { opacity:0; transform: translateY(16px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+
+    .result-hero {
+      background: linear-gradient(135deg, var(--parchment) 0%, #fff 100%);
+      border-radius: var(--radius);
+      border: 1.5px solid var(--warm-tan);
+      padding: 28px 24px;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+    .result-label {
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      color: var(--terracotta);
+      margin-bottom: 10px;
+    }
+    .main-cause {
+      font-family: 'Noto Serif JP', serif;
+      font-size: clamp(18px, 4vw, 22px);
+      font-weight: 600;
+      color: var(--deep);
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+    .detail-text {
+      font-size: 13px;
+      color: var(--mid);
+      line-height: 1.8;
+    }
+
+    /* Radar-style score bars */
+    .score-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .score-card {
+      background: #fff;
+      border-radius: 12px;
+      padding: 12px 14px;
+      box-shadow: 0 2px 12px rgba(61,43,31,0.07);
+    }
+    .score-card-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--mid);
+      margin-bottom: 8px;
+    }
+    .score-bar-wrap {
+      height: 6px;
+      background: var(--parchment);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .score-bar {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.8s ease;
+    }
+
+    /* Actions */
+    .actions-card {
+      background: #fff;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 24px 20px;
+      margin-bottom: 16px;
+    }
+    .actions-title {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--deep);
+      margin-bottom: 16px;
+    }
+    .action-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: var(--cream);
+      margin-bottom: 10px;
+      transition: background 0.2s;
+    }
+    .action-item:last-child { margin-bottom: 0; }
+    .action-item:hover { background: var(--parchment); }
+    .action-num {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: var(--terracotta);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .action-text {
+      font-size: 14px;
+      color: var(--deep);
+      line-height: 1.6;
+      padding-top: 2px;
+    }
+
+    /* Message */
+    .message-card {
+      background: linear-gradient(135deg, var(--sage-light) 0%, #e8f0e4 100%);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-bottom: 16px;
+      text-align: center;
+      border: 1.5px solid var(--sage);
+    }
+    .message-icon { font-size: 24px; margin-bottom: 8px; }
+    .message-text {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 14px;
+      color: #3d5c35;
+      line-height: 1.8;
+    }
+
+    /* Retry */
+    .btn-retry {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background: transparent;
+      color: var(--terracotta);
+      font-family: 'Zen Maru Gothic', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      border: 1.5px solid var(--terracotta);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+      margin-bottom: 16px;
+    }
+    .btn-retry:hover {
+      background: var(--terracotta);
+      color: #fff;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 24px 20px 0;
+      font-size: 11px;
+      color: var(--warm-tan);
+    }
+    footer a {
+      color: var(--terracotta);
+      text-decoration: none;
+    }
+    footer a:hover { text-decoration: underline; }
+
+    /* Error */
+    .error-msg {
+      display: none;
+      background: #fff0ed;
+      border: 1.5px solid #f0b8a8;
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-size: 13px;
+      color: var(--brick);
+      text-align: center;
+      margin-top: 12px;
+    }
+    .error-msg.show { display: block; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-label">AI 原因さぐり</div>
+  <h1><span>つまり</span>なんで？</h1>
+  <p>「最近なんかうまく回らない」<br>——<strong>つまり、なんで？</strong><br>AIが原因を探して、今日の小さな一歩を教えます。</p>
+</header>
+
+<main>
+  <!-- Form -->
+  <div id="form-area">
+    <p class="section-title">今の状態を正直に教えてください</p>
+
+    <div class="card">
+      <!-- 睡眠 -->
+      <div class="item">
+        <div class="item-header">
+          <div class="item-label"><span class="item-icon">😴</span>睡眠の質</div>
+          <div class="item-value" id="val-sleep">ふつう</div>
+        </div>
+        <div class="slider-wrap">
+          <input type="range" min="1" max="5" value="3" id="sleep" oninput="updateSlider('sleep')">
+        </div>
+        <div class="slider-labels"><span>ぐっすり</span><span>ぼろぼろ</span></div>
+      </div>
+
+      <!-- 部屋 -->
+      <div class="item">
+        <div class="item-header">
+          <div class="item-label"><span class="item-icon">🏠</span>部屋の散らかり</div>
+          <div class="item-value" id="val-room">ふつう</div>
+        </div>
+        <div class="slider-wrap">
+          <input type="range" min="1" max="5" value="3" id="room" oninput="updateSlider('room')">
+        </div>
+        <div class="slider-labels"><span>きれい</span><span>カオス</span></div>
+      </div>
+
+      <!-- 未返信 -->
+      <div class="item">
+        <div class="item-header">
+          <div class="item-label"><span class="item-icon">💬</span>未返信・未処理の連絡</div>
+          <div class="item-value" id="val-messages">ふつう</div>
+        </div>
+        <div class="slider-wrap">
+          <input type="range" min="1" max="5" value="3" id="messages" oninput="updateSlider('messages')">
+        </div>
+        <div class="slider-labels"><span>ゼロ</span><span>山積み</span></div>
+      </div>
+
+      <!-- お金 -->
+      <div class="item">
+        <div class="item-header">
+          <div class="item-label"><span class="item-icon">💰</span>お金の不安</div>
+          <div class="item-value" id="val-money">ふつう</div>
+        </div>
+        <div class="slider-wrap">
+          <input type="range" min="1" max="5" value="3" id="money" oninput="updateSlider('money')">
+        </div>
+        <div class="slider-labels"><span>余裕</span><span>かなり不安</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <!-- やること量 -->
+      <div class="item">
+        <div class="item-header">
+          <div class="item-label"><span class="item-icon">📋</span>やることの多さ</div>
+          <div class="item-value" id="val-tasks">ふつう</div>
+        </div>
+        <div class="slider-wrap">
+          <input type="range" min="1" max="5" value="3" id="tasks" oninput="updateSlider('tasks')">
+        </div>
+        <div class="slider-labels"><span>余裕</span><span>パンク寸前</span></div>
+      </div>
+
+      <!-- 人間関係 -->
+      <div class="item">
+        <div class="item-header">
+          <div class="item-label"><span class="item-icon">👥</span>人間関係のストレス</div>
+          <div class="item-value" id="val-relations">ふつう</div>
+        </div>
+        <div class="slider-wrap">
+          <input type="range" min="1" max="5" value="3" id="relations" oninput="updateSlider('relations')">
+        </div>
+        <div class="slider-labels"><span>良好</span><span>しんどい</span></div>
+      </div>
+
+      <!-- 運動 -->
+      <div class="item">
+        <div class="item-header">
+          <div class="item-label"><span class="item-icon">🚶</span>運動不足</div>
+          <div class="item-value" id="val-exercise">ふつう</div>
+        </div>
+        <div class="slider-wrap">
+          <input type="range" min="1" max="5" value="3" id="exercise" oninput="updateSlider('exercise')">
+        </div>
+        <div class="slider-labels"><span>動けてる</span><span>ほぼ動かず</span></div>
+      </div>
+
+      <!-- 食事 -->
+      <div class="item">
+        <div class="item-header">
+          <div class="item-label"><span class="item-icon">🍱</span>食事の乱れ</div>
+          <div class="item-value" id="val-food">ふつう</div>
+        </div>
+        <div class="slider-wrap">
+          <input type="range" min="1" max="5" value="3" id="food" oninput="updateSlider('food')">
+        </div>
+        <div class="slider-labels"><span>整ってる</span><span>かなり乱れ</span></div>
+      </div>
+    </div>
+
+    <button class="btn-diagnose" id="btn-diagnose" onclick="diagnose()">
+      🔍 つまり、なんで？を調べる
+    </button>
+    <div class="error-msg" id="error-msg">
+      診断中にエラーが発生しました。しばらく待ってからもう一度お試しください。
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading" id="loading">
+    <div class="loading-dots">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+    <p>つまり、なんでか…さぐっています</p>
+  </div>
+
+  <!-- Result -->
+  <div id="result">
+    <div class="result-hero">
+      <div class="result-label">💡 つまり、なんでかというと</div>
+      <div class="main-cause" id="res-cause"></div>
+      <div class="detail-text" id="res-detail"></div>
+    </div>
+
+    <div class="score-grid" id="score-grid"></div>
+
+    <div class="actions-card">
+      <div class="actions-title">🌱 だから今日、まずこれだけやってみて</div>
+      <div id="res-actions"></div>
+    </div>
+
+    <div class="message-card">
+      <div class="message-icon">🍵</div>
+      <div class="message-text" id="res-message"></div>
+    </div>
+
+    <button class="btn-retry" onclick="retry()">← もう一度「つまりなんで？」する</button>
+  </div>
+
+  <footer>
+    <a href="https://shosoku-seisaku-sitsu.vercel.app" target="_blank">初速制作室</a>
+    &nbsp;·&nbsp;
+    <a href="https://note.com/tanaka_hagatatsu" target="_blank">note</a>
+  </footer>
+</main>
+
+<script>
+  const LABELS = ['全然OK','少し気になる','ふつう','やや重い','かなり重い'];
+  const COLORS = ['#8ab4a0','#a8c49a','#d4b896','#d4956a','#c47a5a'];
+  const KEYS = ['sleep','room','messages','money','tasks','relations','exercise','food'];
+  const ICONS = ['😴','🏠','💬','💰','📋','👥','🚶','🍱'];
+  const NAMES = ['睡眠','部屋','連絡','お金','タスク','人間関係','運動','食事'];
+
+  function updateSlider(key) {
+    const val = parseInt(document.getElementById(key).value);
+    const el = document.getElementById('val-' + key);
+    el.textContent = LABELS[val - 1];
+    el.style.color = COLORS[val - 1];
+    // fill track
+    const input = document.getElementById(key);
+    const pct = (val - 1) / 4 * 100;
+    input.style.background = `linear-gradient(to right, ${COLORS[val-1]} ${pct}%, var(--parchment) ${pct}%)`;
+  }
+
+  // Init
+  KEYS.forEach(k => updateSlider(k));
+
+  async function diagnose() {
+    const btn = document.getElementById('btn-diagnose');
+    const errorEl = document.getElementById('error-msg');
+    errorEl.classList.remove('show');
+
+    const answers = {};
+    KEYS.forEach(k => { answers[k] = parseInt(document.getElementById(k).value); });
+
+    btn.disabled = true;
+    document.getElementById('form-area').style.display = 'none';
+    document.getElementById('loading').classList.add('show');
+    document.getElementById('result').classList.remove('show');
+
+    try {
+      const res = await fetch('/api/diagnose', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ answers }),
+      });
+
+      if (!res.ok) throw new Error('API error');
+      const data = await res.json();
+
+      // Populate result
+      document.getElementById('res-cause').textContent = data.main_cause || '原因を特定できました';
+      document.getElementById('res-detail').textContent = data.detail || '';
+
+      // Score bars
+      const grid = document.getElementById('score-grid');
+      grid.innerHTML = '';
+      KEYS.forEach((k, i) => {
+        const val = answers[k];
+        const pct = (val / 5) * 100;
+        const color = COLORS[val - 1];
+        grid.innerHTML += `
+          <div class="score-card">
+            <div class="score-card-label">${ICONS[i]} ${NAMES[i]}</div>
+            <div class="score-bar-wrap">
+              <div class="score-bar" style="width:${pct}%; background:${color}"></div>
+            </div>
+          </div>`;
+      });
+
+      // Actions
+      const actionsEl = document.getElementById('res-actions');
+      actionsEl.innerHTML = '';
+      (data.actions || []).forEach((a, i) => {
+        actionsEl.innerHTML += `
+          <div class="action-item">
+            <div class="action-num">${i + 1}</div>
+            <div class="action-text">${a}</div>
+          </div>`;
+      });
+
+      document.getElementById('res-message').textContent = data.message || '';
+
+      document.getElementById('loading').classList.remove('show');
+      document.getElementById('result').classList.add('show');
+
+    } catch (e) {
+      document.getElementById('loading').classList.remove('show');
+      document.getElementById('form-area').style.display = 'block';
+      errorEl.classList.add('show');
+      btn.disabled = false;
+    }
+  }
+
+  function retry() {
+    document.getElementById('result').classList.remove('show');
+    document.getElementById('form-area').style.display = 'block';
+    document.getElementById('btn-diagnose').disabled = false;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>
